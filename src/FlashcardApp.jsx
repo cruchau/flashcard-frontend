@@ -1,4 +1,3 @@
-// Frontend (React) — Ajout du bouton toggle dark mode
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,8 +82,10 @@ export default function FlashcardApp() {
   });
 
   const totalCards = cards.length;
-  const avgScore = totalCards ? (cards.reduce((sum, c) => sum + c.score, 0) / totalCards).toFixed(2) : 0;
-  const lowScoreCount = cards.filter(c => c.score <= 1).length;
+  const avgScore = totalCards
+    ? (cards.reduce((sum, c) => sum + c.score, 0) / totalCards).toFixed(2)
+    : 0;
+  const lowScoreCount = cards.filter((c) => c.score <= 1).length;
 
   return (
     <div className="p-6 space-y-8 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
@@ -108,17 +109,21 @@ export default function FlashcardApp() {
           <Card className="p-4">
             <CardContent>
               <p className="mb-2 font-semibold">
-                {reviewCard.course} > {reviewCard.chapter} > {reviewCard.notion}
+                {reviewCard.course} &gt; {reviewCard.chapter} &gt; {reviewCard.notion}
               </p>
               <p><strong>Q:</strong> {reviewCard.question}</p>
               {!showAnswer ? (
-                <Button className="mt-3" onClick={() => setShowAnswer(true)}>Afficher la réponse</Button>
+                <Button className="mt-3" onClick={() => setShowAnswer(true)}>
+                  Afficher la réponse
+                </Button>
               ) : (
                 <>
                   <p><strong>R:</strong> {reviewCard.answer}</p>
                   <div className="mt-3 space-x-2">
                     <Button onClick={() => reviewResponse(true)}>👍 Bonne réponse</Button>
-                    <Button onClick={() => reviewResponse(false)} variant="destructive">👎 Mauvaise réponse</Button>
+                    <Button onClick={() => reviewResponse(false)} variant="destructive">
+                      👎 Mauvaise réponse
+                    </Button>
                   </div>
                 </>
               )}
@@ -129,7 +134,58 @@ export default function FlashcardApp() {
         )}
       </section>
 
-      {/* Gestion des cartes à compléter selon besoin */}
+      <section>
+        <h2 className="text-xl font-bold mb-2">📂 Importation CSV</h2>
+        <form onSubmit={handleCsvUpload} className="flex items-center gap-2">
+          <Input type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files[0])} />
+          <Button type="submit">Importer</Button>
+        </form>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold mb-2">🔍 Rechercher des cartes</h2>
+        <Input
+          type="text"
+          placeholder="Filtrer les cartes..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+        />
+        <ul className="mt-4 space-y-2">
+          {filteredCards.map((card) => (
+            <li key={card.id} className="p-3 border rounded-md bg-gray-50 dark:bg-gray-800">
+              <div className="font-semibold">
+                {card.course} &gt; {card.chapter} &gt; {card.notion}
+              </div>
+              <div><strong>Q:</strong> {card.question}</div>
+              <div><strong>R:</strong> {card.answer}</div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" onClick={() => setEditCard(card)}>✏️ Modifier</Button>
+                <Button size="sm" variant="destructive" onClick={() => deleteCard(card.id)}>🗑️ Supprimer</Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {editCard && (
+        <section>
+          <h2 className="text-xl font-bold mb-2">✏️ Modifier une carte</h2>
+          <div className="space-y-2">
+            <Input
+              value={editCard.question}
+              onChange={(e) => setEditCard({ ...editCard, question: e.target.value })}
+              placeholder="Question"
+            />
+            <Textarea
+              value={editCard.answer}
+              onChange={(e) => setEditCard({ ...editCard, answer: e.target.value })}
+              placeholder="Réponse"
+            />
+            <Button onClick={updateCard}>💾 Enregistrer</Button>
+            <Button variant="outline" onClick={() => setEditCard(null)}>❌ Annuler</Button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
